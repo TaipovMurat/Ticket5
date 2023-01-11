@@ -2,27 +2,32 @@ package Behaviours;
 
 import Helpers.DFHelper;
 import jade.core.AID;
+import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class BuyerRequest extends Behaviour {
+public class BuyerRequest extends WakerBehaviour {
 
-    private List<AID> agents;
+    private List<AID> agents = new ArrayList<>();
     //    private int bookNum = (int) Math.random() * 4;
     private String book;
     private boolean sendRequest;
 
 
-    public  BuyerRequest (String book){
+    public  BuyerRequest (Agent a, long wakeUpTime, String book){
+        super(a, wakeUpTime);
         this.book = book;
     }
 
     @Override
-    public void action() {
+//    public void action() {
+    public void onWake(){
         agents =  DFHelper.findAgents(getAgent(),"Seller");
         log.info("Found {} sellers", agents.size());
         ACLMessage request = new ACLMessage( ACLMessage.REQUEST);
@@ -72,12 +77,12 @@ public class BuyerRequest extends Behaviour {
         request.setProtocol(book);
         getAgent().send(request);
         log.info("Buyer send his request for book [{}]", book);
-        getAgent().addBehaviour(new BuyerReceive(book, agents.size()));
+//        getAgent().addBehaviour(new BuyerReceive(book, agents.size()));
         sendRequest = true;
     }
 
-    @Override
-    public boolean done() {
-        return sendRequest;
-    }
+//    @Override
+//    public boolean done() {
+//        return sendRequest;
+//    }
 }

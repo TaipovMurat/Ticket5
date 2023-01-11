@@ -1,5 +1,6 @@
 package Agents;
 
+import Behaviours.BuyerFSM;
 import Behaviours.BuyerRequest;
 import Helpers.DFHelper;
 import ch.qos.logback.core.util.COWArrayList;
@@ -15,14 +16,13 @@ import java.util.Random;
 public class BuyerAgent extends Agent {
     private String neededBook;
     private int bookNum;
-    //    private int bookNum = 1;
     private String book;
     private List<AID> receivers;
     private List<String> books = new ArrayList<>();
+    private List<AID> agents;
 
     @Override
     protected void setup() {
-//        log.info("Buyer woke up");
         DFHelper.registerAgent(this, "Buyer");
         for (int i = 0; i < 2; i++){
             bookNum = new Random().nextInt(3);
@@ -53,7 +53,8 @@ public class BuyerAgent extends Agent {
             }
         }
         log.info("Buyer looking for {}", books);
-        addBehaviour(new BuyerRequest(books.get(0)));
-        addBehaviour(new BuyerRequest(books.get(1)));
+        addBehaviour(new BuyerFSM(books));
+//        addBehaviour(new BuyerRequest(this, 1000, books.get(0)));
+//        addBehaviour(new BuyerRequest(this, 10000, books.get(1)));
     }
 }

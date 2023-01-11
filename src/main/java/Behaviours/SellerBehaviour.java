@@ -3,6 +3,7 @@ package Behaviours;
 import Helpers.DFHelper;
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,8 @@ public class SellerBehaviour extends Behaviour {
     private int high = 400;
     private int low = 200;
     private ACLMessage msg = new ACLMessage(ACLMessage.CFP);
-    private boolean response;
+    private int response = 0;
+//    private boolean response;
 
 
     public SellerBehaviour(List<String> books) {
@@ -40,7 +42,7 @@ public class SellerBehaviour extends Behaviour {
                 msg.setProtocol(receive.getContent());
                 msg.setContent(String.valueOf(price));
             }else {
-                log.info("Seller {} don't have needed book", getAgent().getLocalName());
+                log.info("Agent {} don't have needed book", getAgent().getLocalName());
                 msg.setPerformative(ACLMessage.FAILURE);
                 msg.setProtocol(receive.getContent());
                 msg.setContent("I'm sorry :( ");
@@ -50,8 +52,10 @@ public class SellerBehaviour extends Behaviour {
             for (AID agent: agents){
                 msg.addReceiver(agent);
             }
+            response++;
+//            response = true;
             getAgent().send(msg);
-            response = true;
+//            log.info("Agent {} send his response {}", getAgent().getLocalName(), msg.getContent());
 
 
         }else {
@@ -62,6 +66,6 @@ public class SellerBehaviour extends Behaviour {
 
     @Override
     public boolean done() {
-        return response;
+        return response == 2;
     }
 }

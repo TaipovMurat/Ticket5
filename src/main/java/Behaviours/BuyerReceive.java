@@ -1,5 +1,7 @@
 package Behaviours;
 
+import ch.qos.logback.core.util.COWArrayList;
+import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -16,6 +18,7 @@ public class BuyerReceive extends Behaviour {
     private int receiversCount;
     private List<Integer> prices = new ArrayList<>();
     private int minprice;
+    private List<AID> senders = new ArrayList<>();
 
     public BuyerReceive(String book, int receiversCount){
         this.book = book;
@@ -25,12 +28,15 @@ public class BuyerReceive extends Behaviour {
 
     @Override
     public void action() {
-        MessageTemplate mt = MessageTemplate.and(
-                MessageTemplate.or(MessageTemplate.MatchPerformative(ACLMessage.PROPOSE),
-                MessageTemplate.MatchPerformative(ACLMessage.FAILURE)),
-                MessageTemplate.MatchProtocol(book));  // ERROR IS HERE
+//        MessageTemplate mt = MessageTemplate.and(
+//                MessageTemplate.or(MessageTemplate.MatchPerformative(ACLMessage.PROPOSE),
+//                MessageTemplate.MatchPerformative(ACLMessage.FAILURE)),
+//                MessageTemplate.MatchProtocol(book));
+        MessageTemplate mt = MessageTemplate.or(MessageTemplate.MatchPerformative(ACLMessage.PROPOSE),
+                MessageTemplate.MatchPerformative(ACLMessage.FAILURE));
         ACLMessage receive = myAgent.receive(mt);
-        if (receive != null){
+        if (receive != null && !senders.contains(receive.getSender())) {
+            senders.add(receive.getSender());
             log.info("I received answers from {} with price {} for book {}", receive.getSender().getLocalName(), receive.getContent(), receive.getProtocol());
             answers.add(receive);
             if (receive.getPerformative() == ACLMessage.PROPOSE){
@@ -57,6 +63,7 @@ public class BuyerReceive extends Behaviour {
 
     @Override
     public boolean done() {
-        return false;
+        return receiversCount == answers.size();
+
     }
 }
